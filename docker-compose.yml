@@ -1,0 +1,16 @@
+version: '3.1'
+services:
+  mongodb:
+    image: mongo
+    container_name: dev-mongodb
+    ports:
+      - 27017:27017
+    restart: always
+    networks: [dev]
+    volumes:
+      - dev-dbdata:/data/db
+volumes:
+  dev-dbdata:
+networks:
+  dev:
+    driver: bridge
