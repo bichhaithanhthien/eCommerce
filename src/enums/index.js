@@ -7,6 +7,14 @@ const {
   apiKeyStatusValueSchema,
   ApiKeyStatus,
 } = require("../enums/apiKeyStatus.enum");
+const {
+  productStatusValueSchema,
+  ProductStatus,
+} = require("../enums/productStatus.enum");
+const {
+  productTypeValueSchema,
+  ProductType,
+} = require("../enums/productType.enum");
 const { userRoleValueSchema, UserRole } = require("../enums/userRole.enum");
 const {
   userStatusValueSchema,
@@ -18,6 +26,10 @@ module.exports = {
   ApiKeyPermission,
   apiKeyStatusValueSchema,
   ApiKeyStatus,
+  productStatusValueSchema,
+  ProductStatus,
+  productTypeValueSchema,
+  ProductType,
   userRoleValueSchema,
   UserRole,
   userStatusValueSchema,

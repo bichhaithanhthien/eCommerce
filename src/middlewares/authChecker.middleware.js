@@ -90,7 +90,7 @@ const authentication = asyncHandler(async (req, res, next) => {
     throw new NotFoundErrorResponse(generateNotFoundErrorMessage("user"));
 
   req.tokenKey = tokenKey;
-  req.user = existUser;
+  req.user = decodeUser;
   req.token = token;
 
   return next();

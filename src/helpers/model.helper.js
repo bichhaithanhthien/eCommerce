@@ -8,10 +8,15 @@ module.exports.ObjectId = Schema.Types.ObjectId;
 module.exports.Mixed = Schema.Types.Mixed;
 module.exports.Boolean = Schema.Types.Boolean;
 
-module.exports.generate = ({ schema, collectionName, documentName }) => {
+module.exports.generate = ({
+  schema,
+  collectionName,
+  documentName,
+  schemaOnly,
+}) => {
   const _schema = new Schema(schema, {
     timestamps: true,
     collection: collectionName,
   });
-  return model(documentName, _schema);
+  return schemaOnly ? _schema : model(documentName, _schema);
 };
