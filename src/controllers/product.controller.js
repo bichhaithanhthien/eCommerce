@@ -4,9 +4,11 @@ const ProductService = require("../services/product.service");
 const {
   generateCreatedSuccessMessage,
   generateGetListSuccessMessage,
+  generateGetRecordSuccessMessage,
 } = require("../utils/string.util");
 
 class ProductController {
+  /* START CHECKING AUTHENTICATION FUNCTIONS */
   createProduct = async (req, res) => {
     new SuccessResponse({
       message: generateCreatedSuccessMessage("a new product"),
@@ -28,7 +30,7 @@ class ProductController {
     new SuccessResponse({
       message: `Drafted the product (_id: ${req.params.id}) successfully.`,
       metadata: await ProductService.draftProduct({
-        productId: req.params.id,
+        productId: req.params.productId,
         productSeller: req.user.userId,
       }),
     }).send(res);
@@ -38,7 +40,7 @@ class ProductController {
     new SuccessResponse({
       message: `Published the product (_id: ${req.params.id}) successfully.`,
       metadata: await ProductService.publishProduct({
-        productId: req.params.id,
+        productId: req.params.productId,
         productSeller: req.user.userId,
       }),
     }).send(res);
@@ -48,7 +50,7 @@ class ProductController {
     new SuccessResponse({
       message: `Unpublished the product (_id: ${req.params.id}) successfully.`,
       metadata: await ProductService.unpublishProduct({
-        productId: req.params.id,
+        productId: req.params.productId,
         productSeller: req.user.userId,
       }),
     }).send(res);
@@ -87,6 +89,18 @@ class ProductController {
     }).send(res);
   };
 
+  getProductBySeller = async (req, res) => {
+    new SuccessResponse({
+      message: generateGetRecordSuccessMessage("product"),
+      metadata: await ProductService.getProductBySeller({
+        productId: req.params.productId,
+        productSeller: req.user.userId,
+      }),
+    }).send(res);
+  };
+  /* END CHECKING AUTHENTICATION FUNCTIONS */
+
+  /* START NON-CHECKING AUTHENTICATION FUNCTIONS */
   searchProducts = async (req, res) => {
     new SuccessResponse({
       message: generateGetListSuccessMessage("product"),
@@ -97,6 +111,27 @@ class ProductController {
       }),
     }).send(res);
   };
+
+  getProducts = async (req, res) => {
+    new SuccessResponse({
+      message: generateGetListSuccessMessage("product"),
+      metadata: await ProductService.getProducts({
+        filter: req.body.filter,
+        limit: req.body.limit,
+        page: req.body.page,
+        sort: req.body.page,
+        select: req.body.select,
+      }),
+    }).send(res);
+  };
+
+  getProduct = async (req, res) => {
+    new SuccessResponse({
+      message: generateGetRecordSuccessMessage("product"),
+      metadata: await ProductService.getProduct(req.params.productId),
+    }).send(res);
+  };
+  /* END NON-CHECKING AUTHENTICATION FUNCTIONS */
 }
 
 module.exports = new ProductController();

@@ -1,34 +1,44 @@
 const { BadRequestErrorResponse } = require("../../core/error.response");
+const {
+  convertSelectFields,
+  convertUnselectFields,
+} = require("../../utils/api.util");
 
 const getList = async ({
   model,
   filter,
-  limit,
-  page,
-  populate,
-  sort,
-  select,
+  limit = 50,
+  page = 1,
+  populate = "",
+  sort = "{'_id':-1}",
+  select = "",
+  unselect = "",
   isPaging,
   viewFormatter,
 }) => {
   if (!model) throw new BadRequestErrorResponse("Invalid request");
 
-  const _populate = populate
-    ? typeof populate === "string"
+  const _populate =
+    typeof populate === "string"
       ? populate.split(",").filter(Boolean)
-      : populate
-    : [];
-  const _page = Math.max(1, parseInt(page || 1));
-  const _limit = Math.max(1, parseInt(limit || 50));
+      : populate;
+  const _page = Math.max(1, parseInt(page));
+  const _limit = Math.max(1, parseInt(limit));
   const skip = (_page - 1) * _limit;
+  const _select = select
+    ? convertSelectFields(select.split(",").filter(Boolean))
+    : {};
+  const _unselect = unselect
+    ? convertUnselectFields(unselect.split(",").filter(Boolean))
+    : {};
 
   const docs = await model
     .find(filter)
     .populate(_populate)
-    .sort(global.parseJSON(sort || '{"_id":-1}'))
+    .sort(global.parseJSON(sort))
     .skip(skip)
     .limit(_limit)
-    .select(select || "")
+    .select({ ..._select, ..._unselect })
     .lean();
 
   if (!isPaging === "true") {

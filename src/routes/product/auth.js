@@ -7,9 +7,16 @@ const productController = require("../../controllers/product.controller");
 const { asyncHandler } = require("../../helpers/router.helper");
 
 router.post("/create", asyncHandler(productController.createProduct));
-router.post("/draft/:id", asyncHandler(productController.draftProduct));
-router.post("/publish/:id", asyncHandler(productController.publishProduct));
-router.post("/unpublish/:id", asyncHandler(productController.unpublishProduct));
+router.post("/:productId", asyncHandler(productController.getProductBySeller));
+router.post("/draft/:productId", asyncHandler(productController.draftProduct));
+router.post(
+  "/publish/:productId",
+  asyncHandler(productController.publishProduct)
+);
+router.post(
+  "/unpublish/:productId",
+  asyncHandler(productController.unpublishProduct)
+);
 
 router.get(
   "/draft/all",

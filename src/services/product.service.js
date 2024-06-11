@@ -1,5 +1,8 @@
 const { productServiceConfig } = require("../configs/productService.config");
-const { BadRequestErrorResponse } = require("../core/error.response");
+const {
+  BadRequestErrorResponse,
+  NotFoundErrorResponse,
+} = require("../core/error.response");
 const {
   ProductStatus,
   productStatusValueSchema,
@@ -9,16 +12,23 @@ const {
   formatProductResponse,
 } = require("../helpers/viewFormatters/product.viewFormatter");
 const {
-  publishProduct,
-  findProductsBySeller,
-  draftProduct,
-  unpublishProduct,
+  getProducts,
   searchProducts,
+  findProductById,
+  updateProductStatus,
+  findProductByIdAndSeller,
 } = require("../models/repositories/product.repo");
 const {
   generateInvalidValueErrorMessage,
   generateNullErrorMessage,
+  generateNotFoundErrorMessage,
 } = require("../utils/string.util");
+
+const Draft = new ProductStatus(productStatusValueSchema.Enum.Draft);
+const Published = new ProductStatus(productStatusValueSchema.Enum.Published);
+const Unpublished = new ProductStatus(
+  productStatusValueSchema.Enum.Unpublished
+);
 
 // MEMO: Factory + Strategy design patterns
 class ProductService {
@@ -80,15 +90,59 @@ class ProductService {
   }
 
   static async draftProduct({ productId, productSeller }) {
-    return await draftProduct({ productId, productSeller });
+    const product = await findProductByIdAndSeller({
+      productId,
+      productSeller,
+    });
+
+    if (!product)
+      throw new NotFoundErrorResponse(generateNotFoundErrorMessage("product"));
+    if (product.productStatus === Draft.id) {
+      throw new BadRequestErrorResponse("This product is draft already.");
+    }
+
+    return await updateProductStatus({ productId, productStatusId: Draft.id });
   }
 
   static async publishProduct({ productId, productSeller }) {
-    return await publishProduct({ productId, productSeller });
+    const product = await findProductByIdAndSeller({
+      productId,
+      productSeller,
+    });
+
+    if (!product)
+      throw new NotFoundErrorResponse(generateNotFoundErrorMessage("product"));
+    if (product.productStatus === Published.id) {
+      throw new BadRequestErrorResponse("This product is already published.");
+    }
+
+    return await updateProductStatus({
+      productId,
+      productStatusId: Published.id,
+    });
   }
 
   static async unpublishProduct({ productId, productSeller }) {
-    return await unpublishProduct({ productId, productSeller });
+    const product = await findProductByIdAndSeller({
+      productId,
+      productSeller,
+    });
+
+    if (!product)
+      throw new NotFoundErrorResponse(generateNotFoundErrorMessage("product"));
+    if (product.productStatus === Unpublished.id) {
+      throw new BadRequestErrorResponse("This product is already unpublished.");
+    }
+    if (product.productStatus === Draft.id) {
+      throw new BadRequestErrorResponse(
+        "You can not unpublish a draft product."
+      );
+    }
+
+    return await updateProductStatus({
+      productId,
+      productStatusId: Unpublished.id,
+    });
   }
 
   static async getDraftProductsBySeller({
@@ -98,9 +152,9 @@ class ProductService {
   }) {
     const filter = {
       productSeller,
-      productStatus: new ProductStatus(productStatusValueSchema.Enum.Draft).id,
+      productStatus: Draft.id,
     };
-    return await findProductsBySeller({
+    return await getProducts({
       filter,
       limit,
       page,
@@ -115,11 +169,10 @@ class ProductService {
   }) {
     const filter = {
       productSeller,
-      productStatus: new ProductStatus(productStatusValueSchema.Enum.Published)
-        .id,
+      productStatus: Published.id,
     };
 
-    return await findProductsBySeller({
+    return await getProducts({
       filter,
       limit,
       page,
@@ -134,11 +187,10 @@ class ProductService {
   }) {
     const filter = {
       productSeller,
-      productStatus: new ProductStatus(productStatusValueSchema.Enum.Unpublished)
-        .id,
+      productStatus: Unpublished.id,
     };
 
-    return await findProductsBySeller({
+    return await getProducts({
       filter,
       limit,
       page,
@@ -146,8 +198,58 @@ class ProductService {
     });
   }
 
-  static async searchProducts({ keySearch, limit = 50, page = 1 }) {
-    return await searchProducts({ keySearch, limit, page, viewFormatter: formatProductResponse, });
+  static async getProductBySeller({ productId, productSeller }) {
+    const product = await findProductByIdAndSeller({
+      productId,
+      productSeller,
+    });
+    if (!product)
+      throw new NotFoundErrorResponse(generateNotFoundErrorMessage("product"));
+    return formatProductResponse(product);
+  }
+
+  static async getProducts({
+    filter,
+    limit,
+    page,
+    sort,
+    select = "productName, productThumb, productPrice",
+  }) {
+    const _filter = {
+      ...global.parseJSON(filter),
+      productStatus: Published.id,
+    };
+    return await getProducts({
+      filter: _filter,
+      limit,
+      page,
+      populate: {
+        path: "productSeller",
+        select: "_id name",
+      },
+      sort,
+      select,
+      viewFormatter: formatProductResponse,
+    });
+  }
+
+  static async getProduct(productId) {
+    const product = await findProductById({
+      productId,
+      optionalFilter: { productStatus: Published.id },
+    });
+    if (!product)
+      throw new NotFoundErrorResponse(generateNotFoundErrorMessage("product"));
+    return formatProductResponse(product);
+  }
+
+  static async searchProducts({ keySearch, limit, page }) {
+    return await searchProducts({
+      keySearch,
+      limit,
+      page,
+      viewFormatter: formatProductResponse,
+    });
   }
 }
 

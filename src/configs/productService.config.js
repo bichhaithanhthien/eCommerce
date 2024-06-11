@@ -12,6 +12,12 @@ const productServiceConfig = {
   [FashionProductType.id]: FashionProductClass,
 };
 
+const productSortMapper = {
+  latest: "{ updateAt: -1 }",
+  oldest: "{ updateAt: 1 }",
+};
+
 module.exports = {
   productServiceConfig,
+  productSortMapper,
 };

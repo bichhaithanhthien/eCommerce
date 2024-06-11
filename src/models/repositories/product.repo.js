@@ -1,45 +1,73 @@
-const {
-  NotFoundErrorResponse,
-  BadRequestErrorResponse,
-} = require("../../core/error.response");
+const { productSortMapper } = require("../../configs/productService.config");
+const { BadRequestErrorResponse } = require("../../core/error.response");
 const { ProductStatus, productStatusValueSchema } = require("../../enums");
-const { generateNotFoundErrorMessage } = require("../../utils/string.util");
+const { generateNullErrorMessage } = require("../../utils/string.util");
 const ProductModel = require("../product.model");
 const { getList } = require("./common.repo");
 
-const Draft = new ProductStatus(productStatusValueSchema.Enum.Draft);
 const Published = new ProductStatus(productStatusValueSchema.Enum.Published);
-const Unpublished = new ProductStatus(
-  productStatusValueSchema.Enum.Unpublished
-);
 
-const findProductsBySeller = async ({ filter, page, limit, viewFormatter }) => {
+const getProducts = async ({
+  filter,
+  page,
+  limit,
+  populate,
+  sort = "latest",
+  select,
+  unselect,
+  viewFormatter,
+}) => {
   return await getList({
     model: ProductModel,
     filter,
     page,
     limit,
-    populate: {
+    populate: populate || {
       path: "productSeller",
       select: "name email -_id",
     },
-    sort: "{ updateAt: -1 }",
+    sort: productSortMapper[sort],
+    select,
+    unselect,
     isPaging: true,
     viewFormatter,
   });
 };
 
-const findProductByIdandSeller = async ({ productId, productSeller }) => {
-  return await ProductModel.findOne({
-    _id: productId,
-    productSeller: productSeller,
-  });
+const findProductById = async ({ productId, optionalFilter }) => {
+  if (!productId)
+    throw new BadRequestErrorResponse(generateNullErrorMessage("productId"));
+  let _filter = { _id: productId };
+  if (optionalFilter) _filter = { ..._filter, ...optionalFilter };
+  console.log("_filter: ", _filter);
+  return await ProductModel.findOne(_filter);
 };
 
-const searchProducts = async ({ keySearch, page, limit, viewFormatter }) => {
+const findProductByIdAndSeller = async ({ productId, productSeller }) => {
+  if (!productId)
+    throw new BadRequestErrorResponse(generateNullErrorMessage("productId"));
+  if (!productSeller)
+    throw new BadRequestErrorResponse(
+      generateNullErrorMessage("productSeller")
+    );
+
+  const product = await findProductById({
+    productId,
+    optionalFilter: { productSeller },
+  });
+
+  return product;
+};
+
+const searchProducts = async ({
+  keySearch,
+  page = 1,
+  limit = 50,
+  viewFormatter,
+}) => {
   const regexSearch = new RegExp(keySearch);
-  const _page = Math.max(1, parseInt(page || 1));
-  const _limit = Math.max(1, parseInt(limit || 50));
+  const _page = Math.max(1, parseInt(page));
+  const _limit = Math.max(1, parseInt(limit));
   const skip = (_page - 1) * _limit;
 
   const docs = await ProductModel.find(
@@ -71,65 +99,12 @@ const searchProducts = async ({ keySearch, page, limit, viewFormatter }) => {
   };
 };
 
-const draftProduct = async ({ productId, productSeller }) => {
-  const product = await findProductByIdandSeller({ productId, productSeller });
-
-  if (!product)
-    throw new NotFoundErrorResponse(generateNotFoundErrorMessage("product"));
-  if (product.productStatus === Draft.id) {
-    throw new BadRequestErrorResponse("This product is draft already.");
-  }
-
+const updateProductStatus = async ({ productId, productStatusId }) => {
   const { modifiedCount } = await ProductModel.updateOne(
-    { _id: product._id },
+    { _id: productId },
     {
       $set: {
-        productStatus: Draft.id,
-      },
-    }
-  );
-
-  return modifiedCount;
-};
-
-const publishProduct = async ({ productId, productSeller }) => {
-  const product = await findProductByIdandSeller({ productId, productSeller });
-
-  if (!product)
-    throw new NotFoundErrorResponse(generateNotFoundErrorMessage("product"));
-  if (product.productStatus === Published.id) {
-    throw new BadRequestErrorResponse("This product is already published.");
-  }
-
-  const { modifiedCount } = await ProductModel.updateOne(
-    { _id: product._id },
-    {
-      $set: {
-        productStatus: Published.id,
-      },
-    }
-  );
-
-  return modifiedCount;
-};
-
-const unpublishProduct = async ({ productId, productSeller }) => {
-  const product = await findProductByIdandSeller({ productId, productSeller });
-
-  if (!product)
-    throw new NotFoundErrorResponse(generateNotFoundErrorMessage("product"));
-  if (product.productStatus === Unpublished.id) {
-    throw new BadRequestErrorResponse("This product is already unpublished.");
-  }
-  if (product.productStatus === Draft.id) {
-    throw new BadRequestErrorResponse("You can not unpublish a draft product.");
-  }
-
-  const { modifiedCount } = await ProductModel.updateOne(
-    { _id: product._id },
-    {
-      $set: {
-        productStatus: Unpublished.id,
+        productStatus: productStatusId,
       },
     }
   );
@@ -138,9 +113,9 @@ const unpublishProduct = async ({ productId, productSeller }) => {
 };
 
 module.exports = {
-  findProductsBySeller,
+  getProducts,
   searchProducts,
-  draftProduct,
-  publishProduct,
-  unpublishProduct,
+  findProductById,
+  findProductByIdAndSeller,
+  updateProductStatus,
 };

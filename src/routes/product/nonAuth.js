@@ -10,5 +10,7 @@ router.post(
   "/search/:keySearch",
   asyncHandler(productController.searchProducts)
 );
+router.post("", asyncHandler(productController.getProducts));
+router.get("/:productId", asyncHandler(productController.getProduct));
 
 module.exports = router;

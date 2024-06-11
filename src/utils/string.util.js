@@ -28,6 +28,10 @@ const generateGetListSuccessMessage = (paramName) => {
   return `Get ${paramName} data list successfully.`;
 };
 
+const generateGetRecordSuccessMessage = (paramName) => {
+  return `Get the ${paramName} successfully.`;
+};
+
 module.exports = {
   generateNullErrorMessage,
   generateDuplicatedErrorMessage,
@@ -36,4 +40,5 @@ module.exports = {
   generateCreatedFailErrorMessage,
   generateCreatedSuccessMessage,
   generateGetListSuccessMessage,
+  generateGetRecordSuccessMessage,
 };
