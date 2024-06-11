@@ -1,4 +1,3 @@
-"use strict";
 const { generate } = require("../helpers/model.helper.js");
 const {
   apiKeyPermissionValueSchema,

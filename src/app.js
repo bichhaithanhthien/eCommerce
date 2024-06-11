@@ -1,5 +1,3 @@
-"use strict";
-
 require("dotenv").config();
 const express = require("express");
 const compression = require("compression");
@@ -7,6 +5,7 @@ const { default: helmet } = require("helmet");
 const morgan = require("morgan");
 const { isDevEnv } = require("./utils/envChecker.util");
 const { initData } = require("./helpers/initData.helper");
+require("./helpers/global.helper.js");
 //const { checkOverload } = require("./helpers/connectionChecker.helper");
 
 const app = express();

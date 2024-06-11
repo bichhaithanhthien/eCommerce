@@ -1,25 +1,23 @@
 const { generate, ObjectId } = require("../helpers/model.helper.js");
-const COLLECTION_NAME = "TokenKeys";
-const DOCUMENT_NAME = "TokenKey";
+const COLLECTION_NAME = "FashionProducts";
+const DOCUMENT_NAME = "FashionProduct";
 
 module.exports = generate({
   schema: {
-    user: {
+    brand: {
+      type: String,
+      require: true,
+    },
+    size: {
+      type: String,
+    },
+    material: {
+      type: String,
+    },
+    productSeller: {
       type: ObjectId,
       require: true,
       ref: "User",
-    },
-    privateKey: {
-      type: String,
-      require: true,
-    },
-    token: {
-      type: String,
-      require: true,
-    },
-    usedToken: {
-      type: Array,
-      default: [],
     },
   },
   collectionName: COLLECTION_NAME,

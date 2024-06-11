@@ -1,4 +1,3 @@
-"use strict";
 const { z } = require("zod");
 
 const apiKeyPermissionValueSchema = z.enum(["Unknown", "All"]);

@@ -1,4 +1,3 @@
-"use strict";
 const { z } = require("zod");
 
 const userStatusValueSchema = z.enum(["Unknown", "Active", "Inactive"]);

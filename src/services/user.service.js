@@ -1,4 +1,3 @@
-"use strict";
 const UserModel = require("../models/user.model");
 
 class UserService {

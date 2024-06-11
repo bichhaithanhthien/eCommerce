@@ -1,4 +1,3 @@
-"use strict";
 const { ApiKeyStatus, apiKeyStatusValueSchema } = require("../enums");
 const ApiKeyModel = require("../models/apiKey.model");
 
