@@ -1,4 +1,3 @@
-"use strict";
 const mongoose = require("mongoose");
 const { countConnections } = require("../helpers/connectionChecker.helper");
 const {

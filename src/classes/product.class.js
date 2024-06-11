@@ -1,4 +1,5 @@
 const ProductModel = require("../models/product.model");
+const { updateProduct } = require("../models/repositories/product.repo");
 
 class Product {
   constructor({
@@ -26,6 +27,10 @@ class Product {
       ...this,
       _id: productId,
     });
+  }
+
+  async updateProduct(productId, payload) {
+    return await updateProduct({ productId, payload, model: ProductModel });
   }
 }
 

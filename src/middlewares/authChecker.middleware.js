@@ -1,4 +1,3 @@
-"use strict";
 const {
   HEADER_API_KEY,
   HEADER_CLIENT_ID,

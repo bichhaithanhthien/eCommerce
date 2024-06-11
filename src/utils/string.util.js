@@ -1,5 +1,3 @@
-"use strict";
-
 const generateNullErrorMessage = (paramName) => {
   return `This ${paramName} is null.`;
 };
@@ -24,6 +22,10 @@ const generateCreatedSuccessMessage = (paramName) => {
   return `Created ${paramName} successfully.`;
 };
 
+const generateUpdatedSuccessMessage = (paramName) => {
+  return `Updated the ${paramName} successfully.`;
+};
+
 const generateGetListSuccessMessage = (paramName) => {
   return `Get ${paramName} data list successfully.`;
 };
@@ -39,6 +41,7 @@ module.exports = {
   generateInvalidValueErrorMessage,
   generateCreatedFailErrorMessage,
   generateCreatedSuccessMessage,
+  generateUpdatedSuccessMessage,
   generateGetListSuccessMessage,
   generateGetRecordSuccessMessage,
 };

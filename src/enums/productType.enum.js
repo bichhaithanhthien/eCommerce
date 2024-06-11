@@ -1,4 +1,3 @@
-"use strict";
 const { z } = require("zod");
 
 const productTypeValueSchema = z.enum(["Unknown", "Electronics", "Fashion"]);

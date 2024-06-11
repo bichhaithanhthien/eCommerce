@@ -1,5 +1,3 @@
-"use strict";
-//const mongoose = require('mongoose');
 const TokenKeyModel = require("../models/tokenKey.model");
 
 class TokenKeyService {

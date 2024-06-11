@@ -1,9 +1,13 @@
 const { productSortMapper } = require("../../configs/productService.config");
 const { BadRequestErrorResponse } = require("../../core/error.response");
 const { ProductStatus, productStatusValueSchema } = require("../../enums");
+const {
+  removeUndefinedValuesInNestedObject,
+} = require("../../utils/object.util");
 const { generateNullErrorMessage } = require("../../utils/string.util");
 const ProductModel = require("../product.model");
 const { getList } = require("./common.repo");
+const slugify = require("slugify");
 
 const Published = new ProductStatus(productStatusValueSchema.Enum.Published);
 
@@ -112,10 +116,22 @@ const updateProductStatus = async ({ productId, productStatusId }) => {
   return modifiedCount;
 };
 
+const updateProduct = async ({ productId, payload, model, isNew = true }) => {
+  if (payload.productName) {
+    payload.productSlug = slugify(payload.productName, { lower: true });
+  }
+  return await model.findByIdAndUpdate(
+    productId,
+    removeUndefinedValuesInNestedObject(payload),
+    { new: isNew }
+  );
+};
+
 module.exports = {
   getProducts,
   searchProducts,
   findProductById,
   findProductByIdAndSeller,
   updateProductStatus,
+  updateProduct,
 };

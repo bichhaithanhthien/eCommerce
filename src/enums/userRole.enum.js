@@ -1,4 +1,3 @@
-"use strict";
 const { z } = require("zod");
 
 const userRoleValueSchema = z.enum([

@@ -1,4 +1,3 @@
-"use strict";
 const slugify = require("slugify");
 const {
   generate,

@@ -2,6 +2,7 @@ const { BadRequestErrorResponse } = require("../core/error.response");
 const Product = require("./product.class");
 const ProductFashionModel = require("../models/product.fashion.model");
 const { generateCreatedFailErrorMessage } = require("../utils/string.util");
+const { updateProduct } = require("../models/repositories/product.repo");
 
 class FashionProduct extends Product {
   async createProduct() {
@@ -21,6 +22,14 @@ class FashionProduct extends Product {
       );
 
     return newProduct;
+  }
+
+  async updateProduct(productId) {
+    const payload = this;
+    if (payload.productAttributes) {
+      await updateProduct({ productId, payload, model: ProductFashionModel });
+    }
+    return await super.updateProduct(productId, payload);
   }
 }
 

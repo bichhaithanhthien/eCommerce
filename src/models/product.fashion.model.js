@@ -1,4 +1,3 @@
-"use strict";
 const { generate, ObjectId } = require("../helpers/model.helper.js");
 const COLLECTION_NAME = "FashionProducts";
 const DOCUMENT_NAME = "FashionProduct";

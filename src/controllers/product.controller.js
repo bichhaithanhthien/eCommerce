@@ -1,10 +1,10 @@
-"use strict";
 const { SuccessResponse } = require("../core/success.response");
 const ProductService = require("../services/product.service");
 const {
   generateCreatedSuccessMessage,
   generateGetListSuccessMessage,
   generateGetRecordSuccessMessage,
+  generateUpdatedSuccessMessage,
 } = require("../utils/string.util");
 
 class ProductController {
@@ -13,16 +13,20 @@ class ProductController {
     new SuccessResponse({
       message: generateCreatedSuccessMessage("a new product"),
       metadata: await ProductService.createProduct({
-        productName: req.body.productName,
-        productThumb: req.body.productThumb,
-        productDescription: req.body.productDescription,
-        productPrice: req.body.productPrice,
-        productQuantity: req.body.productQuantity,
-        productType: req.body.productType,
-        productAttributes: req.body.productAttributes,
-        productStatus: req.body.productStatus,
+        ...generateProductPayload(req),
         productSeller: req.user.userId,
       }),
+    }).send(res);
+  };
+
+  updateProduct = async (req, res) => {
+    new SuccessResponse({
+      message: generateUpdatedSuccessMessage("product"),
+      metadata: await ProductService.updateProduct(
+        req.params.productId,
+        req.user.userId,
+        generateProductPayload(req)
+      ),
     }).send(res);
   };
 
@@ -133,5 +137,18 @@ class ProductController {
   };
   /* END NON-CHECKING AUTHENTICATION FUNCTIONS */
 }
+
+const generateProductPayload = (req) => {
+  return {
+    productName: req.body.productName,
+    productThumb: req.body.productThumb,
+    productDescription: req.body.productDescription,
+    productPrice: req.body.productPrice,
+    productQuantity: req.body.productQuantity,
+    productType: req.body.productType,
+    productAttributes: req.body.productAttributes,
+    productStatus: req.body.productStatus,
+  };
+};
 
 module.exports = new ProductController();

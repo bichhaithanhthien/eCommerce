@@ -89,6 +89,40 @@ class ProductService {
     return formatProductResponse(newProduct);
   }
 
+  static async updateProduct(productId, productSeller, payload) {
+    const { productType: productTypeId } = payload;
+
+    if (!productId)
+      throw new BadRequestErrorResponse(generateNullErrorMessage("productId"));
+    if (!productSeller)
+      throw new BadRequestErrorResponse(
+        generateNullErrorMessage("productSeller")
+      );
+
+    if (!productTypeId || !ProductType.fromId(productTypeId).value)
+      throw new BadRequestErrorResponse(
+        generateInvalidValueErrorMessage("type")
+      );
+
+    const productClass = this.productRegistry[productTypeId];
+    if (!productClass)
+      throw new BadRequestErrorResponse(
+        generateInvalidValueErrorMessage("type")
+      );
+
+    const product = await findProductById({
+      productId,
+      optionalFilter: { productSeller },
+    });
+    if (!product)
+      throw new NotFoundErrorResponse(generateNotFoundErrorMessage("product"));
+
+    const updatedProduct = await new productClass(payload).updateProduct(
+      productId
+    );
+    return formatProductResponse(updatedProduct);
+  }
+
   static async draftProduct({ productId, productSeller }) {
     const product = await findProductByIdAndSeller({
       productId,

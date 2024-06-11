@@ -1,5 +1,3 @@
-"use strict";
-
 const isPrdEnv = (env = process.env.NODE_ENV) => {
   return env === "prd";
 };

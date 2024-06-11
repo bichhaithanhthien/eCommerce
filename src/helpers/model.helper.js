@@ -1,4 +1,3 @@
-"use strict";
 const { Types, Schema, model } = require("mongoose");
 
 module.exports.model = model;

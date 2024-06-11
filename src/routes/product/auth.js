@@ -1,5 +1,3 @@
-"use strict";
-
 const express = require("express");
 const router = express.Router();
 
@@ -30,5 +28,7 @@ router.get(
   "/unpublish/all",
   asyncHandler(productController.getUnpublishedProductsBySeller)
 );
+
+router.patch("/:productId", asyncHandler(productController.updateProduct));
 
 module.exports = router;

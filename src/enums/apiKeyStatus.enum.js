@@ -1,4 +1,3 @@
-"use strict";
 const { z } = require("zod");
 
 const apiKeyStatusValueSchema = z.enum(["Unknown", "Active", "Inactive"]);

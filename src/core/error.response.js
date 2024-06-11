@@ -1,4 +1,3 @@
-"use strict";
 const {
   REASON_STATUS_CODES,
   STATUS_CODES,
